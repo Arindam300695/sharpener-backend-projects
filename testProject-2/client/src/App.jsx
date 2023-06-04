@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const baseUrl = "http://localhost:8080";
 
@@ -23,7 +24,13 @@ function App() {
 	const addHandler = async (event) => {
 		event.preventDefault();
 		const res = await axios.post(`${baseUrl}/todo/createTodo`, formData);
+		if (res.data.message) toast.success(res.data.message);
+		else toast.error(res.data.error);
 		setTodoData(res.data.allTodos);
+		setFormData({
+			name: "",
+			description: "",
+		});
 	};
 
 	// updateHandler function
@@ -32,6 +39,8 @@ function App() {
 		const res = await axios.patch(`${baseUrl}/todo/updateTodo/${todoId}`, {
 			currentStatus: !isCompleted,
 		});
+		if (res.data.message) toast.success(res.data.message);
+		else toast.error(res.data.error);
 		setTodoData(res.data.updatedData);
 	};
 
@@ -81,67 +90,81 @@ function App() {
 				{todoData.length === 0 && <>No Data Found...</>}
 				{/* incompleted todos will apear here */}
 				<h2>Incompleted Todo:</h2>{" "}
-				{todoData.length > 0 &&
-					todoData.map(
-						(todo) =>
-							todo.currentStatus === false && (
-								<div key={todo.id}>
-									<h4>Todo name: {todo.name}</h4>
-									<div>
+				<div
+					style={{
+						backgroundColor: "red",
+						padding: "1rem",
+						borderRadius: "1rem",
+					}}
+				>
+					{todoData.length > 0 &&
+						todoData.map(
+							(todo) =>
+								todo.currentStatus === false && (
+									<div key={todo.id}>
+										<h4>Todo name: {todo.name}</h4>
+										<div>
+											<h4>
+												Todo current Status:{" "}
+												{todo.currentStatus ===
+													false && <span>false</span>}
+											</h4>
+											<span>
+												<button
+													onClick={() => {
+														updateHandler(todo.id);
+													}}
+												>
+													Toggle
+												</button>
+											</span>
+										</div>
 										<h4>
-											Todo current Status:{" "}
-											{todo.currentStatus === false && (
-												<span>false</span>
-											)}
+											Todo description: {todo.description}
 										</h4>
-										<span>
-											<button
-												onClick={() => {
-													updateHandler(todo.id);
-												}}
-											>
-												Toggle
-											</button>
-										</span>
 									</div>
-									<h4>
-										Todo description: {todo.description}
-									</h4>
-								</div>
-							),
-					)}
+								),
+						)}
+				</div>
 				{/* completed todos will appear here */}
 				<div style={{ border: "4px solid white", width: "100%" }}></div>
 				<h2> Completed Todo:</h2>{" "}
-				{todoData.length > 0 &&
-					todoData.map(
-						(todo) =>
-							todo.currentStatus === true && (
-								<div key={todo.id}>
-									<h4>Todo name: {todo.name}</h4>
-									<div>
+				<div
+					style={{
+						backgroundColor: "green",
+						padding: "1rem",
+						borderRadius: "1rem",
+					}}
+				>
+					{todoData.length > 0 &&
+						todoData.map(
+							(todo) =>
+								todo.currentStatus === true && (
+									<div key={todo.id}>
+										<h4>Todo name: {todo.name}</h4>
+										<div>
+											<h4>
+												Todo current Status:{" "}
+												{todo.currentStatus ===
+													true && <span>true</span>}
+											</h4>
+											<span>
+												<button
+													onClick={() => {
+														updateHandler(todo.id);
+													}}
+												>
+													Toggle
+												</button>
+											</span>
+										</div>
 										<h4>
-											Todo current Status:{" "}
-											{todo.currentStatus === true && (
-												<span>true</span>
-											)}
+											Todo description: {todo.description}
 										</h4>
-										<span>
-											<button
-												onClick={() => {
-													updateHandler(todo.id);
-												}}
-											>
-												Toggle
-											</button>
-										</span>
 									</div>
-									<h4>
-										Todo description: {todo.description}
-									</h4>
-								</div>
-							),
-					)}
+								),
+						)}
+				</div>
 			</div>
 		</>
 	);
